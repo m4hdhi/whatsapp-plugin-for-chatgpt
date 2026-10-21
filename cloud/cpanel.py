@@ -13,19 +13,13 @@ from pathlib import Path
 import signal
 import subprocess
 
-import httpx
-import uvicorn
-
-from app.core import Engine
-from .server import create_app, validate_config
-
 
 def main():
     os.umask(0o077)
     directory = Path(os.environ["WA_CPANEL_DIR"]).resolve()
     runtime = json.loads((directory / "runtime.json").read_text())
     config_file = directory / "config.json"
-    config = validate_config(json.loads(config_file.read_text()))
+    config = json.loads(config_file.read_text())
     sockets = directory / "run"
     sockets.mkdir(mode=0o700, parents=True, exist_ok=True)
     sockets.chmod(0o700)
@@ -36,6 +30,13 @@ def main():
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
         return  # Another Passenger frontend already owns the runtime.
+    # Take the lock before loading the application: duplicate frontends must
+    # exit quickly even when importing dependencies from a slow shared disk.
+    import httpx
+    import uvicorn
+    from app.core import Engine
+    from .server import create_app, validate_config
+    validate_config(config)
     for name in ["gateway.sock"] + [f"bridge-{uid}.sock" for uid in config["users"]]:
         target = sockets / name
         if target.is_socket():

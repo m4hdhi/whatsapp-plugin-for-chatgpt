@@ -33,7 +33,7 @@ def main():
     process = subprocess.Popen([sys.executable, "-m", "cloud.cpanel"], env=env)
     try:
         with httpx.Client(transport=httpx.HTTPTransport(uds=str(directory / "run/gateway.sock")),
-                          base_url="https://wa.example.test", timeout=10) as gateway, \
+                          base_url="http://wa.example.test", timeout=10) as gateway, \
              httpx.Client(transport=httpx.HTTPTransport(uds=str(directory / "run/bridge-probe.sock")),
                           base_url="http://bridge-probe:3000", headers={"X-Api-Key":key}, timeout=10) as bridge:
             deadline = time.monotonic() + 150

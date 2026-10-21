@@ -10,6 +10,10 @@ Date: 2026-10-21. Version: 3.0.0-beta.1. All account/message inputs used in auto
 - Automated Chromium UI testing against a local HTTPS test server: browser login, cookie/CSRF settings save, keyless sharing persistence, background analysis off, hidden Windows-only controls, grant revocation and logout. Widths 1440, 390 and 360 pixels; no horizontal overflow or JavaScript errors. Mobile screenshot visually inspected. This test used a test-only self-signed certificate; no production certificate validation was disabled.
 - Browser testing found and fixed `Referrer-Policy: no-referrer` causing native form POSTs to use `Origin: null`. The hosted gateway now uses `same-origin`; cross-origin requests remain rejected.
 - Container testing found and fixed the bridge rejecting its private container Host header. The hosted worker now allows exactly its configured service hostname; the desktop bridge's default Host restriction remains unchanged.
+- Direct cPanel prerequisites checked on the selected existing register.lk account: Node 24.21.0, Python 3.12.15 and Chrome for Testing 156.0.8078.47. Chrome rendered `about:blank` with exit 0 and its sandbox enabled. This was a browser prerequisite check, not real-account pairing or a complete hosted deployment.
+- cPanel supervisor integration check passed on Linux with a synthetic Unix-socket worker: private gateway startup, unauthenticated access rejection, duplicate-runtime lock and clean shutdown. The lock is acquired before expensive application imports so duplicate Passenger frontends exit promptly. This test is skipped on Windows. The on-host `cloud.check_cpanel` probe remains to be run against the real WhatsApp worker.
+- Node suite: 17 passed and one optional installed-WAHA-artifact check skipped. GitHub Actions for commit `77b4af1` passed on Windows and Ubuntu; the later Linux lifecycle check was also run separately before its follow-up commit.
+- The requested `wa.robotuae.com` A record was added in Cloudflare and confirmed against its authoritative nameserver as `162.214.204.205`. Prior cPanel AutoSSL status showed a self-signed certificate because DNS had been missing. New certificate issuance remains unverified.
 
 ## Unresolved dependency audit
 
@@ -19,7 +23,8 @@ This build uses distribution Chromium with Puppeteer's download disabled, does n
 
 ## Not yet established
 
-- Deployment at `wa.robotuae.com`, public TLS issuance, real DNS routing and production host capacity.
+- Application deployment at `wa.robotuae.com`, public TLS issuance and production host capacity. Public DNS now resolves; that alone does not deploy the application.
+- Actual cPanel Passenger startup, persistent background operation between visits, real worker readiness through Unix sockets, and restart recovery on the shared account. Source is prepared; it has not yet been installed as a cPanel application.
 - End-to-end OAuth/tool invocation inside ChatGPT, including actual Windows/macOS/iOS/Android clients and plan/workspace eligibility.
 - Real-account pairing, reconnect behavior after host restart, long-term collection completeness and load/concurrency testing.
 - Independent security review, adopted hosted privacy/terms/deletion policy, MFA/self-service account recovery, large-scale operation or an uptime commitment.
