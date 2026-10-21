@@ -8,7 +8,7 @@ This mode targets the publisher's existing register.lk account. End users only n
 
 On 2026-10-21 the existing account exposed Node 24.21.0, Python 3.12.15, glibc 2.34, an 8 GB physical-memory limit, 400% CPU limit and 300 process limit. These resources are shared with the account's other websites. Google Chrome for Testing 156.0.8078.47 started headless and returned `about:blank` with exit 0, without `--no-sandbox`. Runtime and capacity are not an always-on service guarantee.
 
-The private real-worker probe subsequently passed on this account, including sandboxed WhatsApp QR readiness, authentication checks and clean shutdown. Public HTTPS also passed normal certificate validation after AutoSSL ran. The Passenger-facing application, real-account pairing and idle/restart behavior must still be verified. Do not advertise continuous monitoring until the provider permits persistent background connections and an idle test confirms it. No keep-alive traffic or cron workaround should be used to evade hosting restrictions.
+The private real-worker probe subsequently passed on this account, including sandboxed WhatsApp QR readiness, authentication checks and clean shutdown. The cPanel Node application is deployed: public HTTPS sign-in, health, OAuth metadata and unauthenticated access restrictions passed. HTTP redirects to HTTPS, and health returned 200 after a cPanel restart request. Real-account pairing, paired-session recovery and idle behavior must still be verified. Do not advertise continuous monitoring until the provider permits persistent background connections and an idle test confirms it. No keep-alive traffic or cron workaround should be used to evade hosting restrictions.
 
 ## Private files and installation
 
