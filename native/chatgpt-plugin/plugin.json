@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "groupbrief",
+  "version": "2.2.0",
+  "description": "Analyze permitted WhatsApp messages in ChatGPT without an API key. Made by Mahdhi.",
+  "author": { "name": "Mahdhi", "url": "https://www.linkedin.com/in/m4hdhi/" },
+  "homepage": "https://www.linkedin.com/in/m4hdhi/",
+  "license": "MIT",
+  "extensions": { "com.openai": {
+    "requires_local_executor": true,
+    "interface": {
+      "displayName": "WhatsApp",
+      "shortDescription": "WhatsApp insights, no API key",
+      "longDescription": "Independent integration. Made by Mahdhi — https://www.linkedin.com/in/m4hdhi/ . Read permitted WhatsApp messages and analyze them in your ChatGPT conversation using your plan. No API key needed for this default mode. API analysis is optional for automatic dashboard briefs and tasks. Includes its Windows helper; requires QR pairing, separate message-sharing consent and an awake PC. Does not send WhatsApp replies or create reminders from conversation analysis.",
+      "developerName": "Mahdhi",
+      "websiteURL": "https://www.linkedin.com/in/m4hdhi/",
+      "category": "Productivity",
+      "capabilities": ["Read"],
+      "brandColor": "#128C7E",
+      "composerIcon": "./assets/whatsapp.png",
+      "logo": "./assets/whatsapp.png",
+      "defaultPrompt": ["Summarize important WhatsApp updates and tasks waiting on me."]
+    }
+  } }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "groupbrief-local-whatsapp",
+  "version": "2.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Local read-only WhatsApp bridge for the GroupBrief Windows application",
+  "dependencies": { "whatsapp-web.js": "1.34.7", "qrcode": "1.5.4" },
+  "scripts": { "test": "node --test bridge.test.cjs" }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "groupbrief",
+  "version": "2.2.0",
+  "description": "Analyze permitted WhatsApp messages in ChatGPT without an API key. Made by Mahdhi.",
+  "author": {
+    "name": "Mahdhi",
+    "url": "https://www.linkedin.com/in/m4hdhi/"
+  },
+  "homepage": "https://www.linkedin.com/in/m4hdhi/",
+  "license": "MIT",
+  "extensions": {
+    "com.openai": {
+      "requires_local_executor": true,
+      "interface": {
+        "displayName": "WhatsApp",
+        "shortDescription": "WhatsApp insights, no API key",
+        "longDescription": "Independent integration. Made by Mahdhi — https://www.linkedin.com/in/m4hdhi/ . Read permitted WhatsApp messages and analyze them in your ChatGPT conversation using your plan. No API key needed for this default mode. API analysis is optional for automatic dashboard briefs and tasks. Includes its Windows helper; requires QR pairing, separate message-sharing consent and an awake PC. Does not send WhatsApp replies or create reminders from conversation analysis.",
+        "developerName": "Mahdhi Muzammil",
+        "websiteURL": "https://www.linkedin.com/in/m4hdhi/",
+        "category": "Productivity",
+        "capabilities": [
+          "Read"
+        ],
+        "brandColor": "#128C7E",
+        "composerIcon": "./assets/whatsapp.png",
+        "logo": "./assets/whatsapp.png",
+        "defaultPrompt": [
+          "Summarize important WhatsApp updates and tasks waiting on me."
+        ]
+      },
+      "review": {
+        "prompts": [
+          "Summarize important updates from my permitted WhatsApp chats.",
+          "What requests and deadlines need my attention?"
+        ],
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Dedicated sample account: permit a private chat and raw-message sharing; capture a request addressed to the owner within the last hour. No API key configured.",
+              "prompt": "What important WhatsApp requests need my attention today?",
+              "tools_triggered": "read_whatsapp_messages",
+              "expected_behavior": "Read the permitted recent messages, ground the summary in returned chat names/timestamps and distinguish requests from announcements. No provider API call, task save or reminder claim."
+            },
+            {
+              "description": "Sample group includes one commitment assigned to the owner and another assigned to someone else. Set owner display name/aliases and permit the group.",
+              "prompt": "Which commitments in my work group are mine?",
+              "tools_triggered": "read_whatsapp_messages",
+              "expected_behavior": "Use permitted messages and owner context; use chat_id to narrow follow-up reads when needed. Do not assign another participant's commitment to the owner."
+            },
+            {
+              "description": "Capture a private message saying submit the project in five minutes, with a known timestamp and configured timezone.",
+              "prompt": "When is the project submission due according to my WhatsApp message?",
+              "tools_triggered": "read_whatsapp_messages",
+              "expected_behavior": "Calculate the relative deadline from the returned message timestamp, not the tool-call time. State the timezone and uncertainty if the source is ambiguous."
+            },
+            {
+              "description": "Dedicated account has more than fifty permitted messages in the last twenty-four hours. Use synthetic text only.",
+              "prompt": "Review the rest of today's WhatsApp messages too, so we do not stop at the first page.",
+              "tools_triggered": "read_whatsapp_messages",
+              "expected_behavior": "Use next_cursor with unchanged filters for later pages. Respect per-page limits and disclose incomplete coverage rather than claiming all history was read."
+            },
+            {
+              "description": "Disable message-sharing permission in local Settings while keeping the helper available.",
+              "prompt": "Read my latest WhatsApp updates.",
+              "tools_triggered": "read_whatsapp_messages",
+              "expected_behavior": "Return no message text. Explain that message sharing is disabled and guide the user to local settings; do not grant consent or claim successful access."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Sending is unsupported. Explain that limitation without invoking read/setup tools to send or claiming delivery.",
+              "prompt": "Send a WhatsApp reply to my colleague saying the project is finished."
+            },
+            {
+              "description": "The plugin has no voice-note transcription tool. Explain the text/caption limitation; do not invoke tools or fabricate a transcript.",
+              "prompt": "Transcribe the audio in my latest WhatsApp voice note."
+            },
+            {
+              "description": "The plugin cannot save a ChatGPT-generated local task or schedule a ChatGPT reminder. Explain that limitation without invoking this plugin's tools or claiming scheduling.",
+              "prompt": "Create a reminder in this plugin for five minutes from now."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "The publisher distributes this plugin free of charge. It does not sell products, subscriptions or process payments. Optional third-party API usage is separately billed by its provider."
+      },
+      "publication": {
+        "release_notes": "# 2.2.0 release notes\n\nAdds on-demand permitted-message reading for ChatGPT analysis without an OpenAI API key. Adds separate raw-message sharing consent, bounded pagination and capture-coverage notices. Makes API background analysis optional and disabled by default. Preserves linked-device sessions and existing permission scope during upgrade. Conversation analysis does not save tasks or schedule reminders.\n\nThis is a private local distribution release, not an approved OpenAI public-directory release.\n",
+        "countries": []
+      }
+    }
+  },
+  "repository": "https://github.com/m4hdhi/whatsapp-plugin-for-chatgpt"
+}

@@ -1,0 +1,48 @@
+{
+  "positive": [
+    {
+      "description": "Dedicated sample account: permit a private chat and raw-message sharing; capture a request addressed to the owner within the last hour. No API key configured.",
+      "prompt": "What important WhatsApp requests need my attention today?",
+      "tools_triggered": "read_whatsapp_messages",
+      "expected_behavior": "Read the permitted recent messages, ground the summary in returned chat names/timestamps and distinguish requests from announcements. No provider API call, task save or reminder claim."
+    },
+    {
+      "description": "Sample group includes one commitment assigned to the owner and another assigned to someone else. Set owner display name/aliases and permit the group.",
+      "prompt": "Which commitments in my work group are mine?",
+      "tools_triggered": "read_whatsapp_messages",
+      "expected_behavior": "Use permitted messages and owner context; use chat_id to narrow follow-up reads when needed. Do not assign another participant's commitment to the owner."
+    },
+    {
+      "description": "Capture a private message saying submit the project in five minutes, with a known timestamp and configured timezone.",
+      "prompt": "When is the project submission due according to my WhatsApp message?",
+      "tools_triggered": "read_whatsapp_messages",
+      "expected_behavior": "Calculate the relative deadline from the returned message timestamp, not the tool-call time. State the timezone and uncertainty if the source is ambiguous."
+    },
+    {
+      "description": "Dedicated account has more than fifty permitted messages in the last twenty-four hours. Use synthetic text only.",
+      "prompt": "Review the rest of today's WhatsApp messages too, so we do not stop at the first page.",
+      "tools_triggered": "read_whatsapp_messages",
+      "expected_behavior": "Use next_cursor with unchanged filters for later pages. Respect per-page limits and disclose incomplete coverage rather than claiming all history was read."
+    },
+    {
+      "description": "Disable message-sharing permission in local Settings while keeping the helper available.",
+      "prompt": "Read my latest WhatsApp updates.",
+      "tools_triggered": "read_whatsapp_messages",
+      "expected_behavior": "Return no message text. Explain that message sharing is disabled and guide the user to local settings; do not grant consent or claim successful access."
+    }
+  ],
+  "negative": [
+    {
+      "description": "Sending is unsupported. Explain that limitation without invoking read/setup tools to send or claiming delivery.",
+      "prompt": "Send a WhatsApp reply to my colleague saying the project is finished."
+    },
+    {
+      "description": "The plugin has no voice-note transcription tool. Explain the text/caption limitation; do not invoke tools or fabricate a transcript.",
+      "prompt": "Transcribe the audio in my latest WhatsApp voice note."
+    },
+    {
+      "description": "The plugin cannot save a ChatGPT-generated local task or schedule a ChatGPT reminder. Explain that limitation without invoking this plugin's tools or claiming scheduling.",
+      "prompt": "Create a reminder in this plugin for five minutes from now."
+    }
+  ]
+}

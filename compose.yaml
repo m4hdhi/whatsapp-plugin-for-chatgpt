@@ -1,0 +1,58 @@
+name: groupbrief
+services:
+  waha:
+    build:
+      context: .
+      dockerfile: Dockerfile.waha
+    image: groupbrief-waha:2026.9.2-metadata1
+    restart: unless-stopped
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY:?Start.cmd creates this}
+      WHATSAPP_DEFAULT_ENGINE: WEBJS
+      WHATSAPP_RESTART_ALL_SESSIONS: "True"
+      WAHA_DASHBOARD_ENABLED: "False"
+      WAHA_DASHBOARD_USERNAME: admin
+      WAHA_DASHBOARD_PASSWORD: ${WAHA_API_KEY:?Start.cmd creates this}
+      WHATSAPP_SWAGGER_ENABLED: "False"
+      WHATSAPP_SWAGGER_USERNAME: admin
+      WHATSAPP_SWAGGER_PASSWORD: ${WAHA_API_KEY:?Start.cmd creates this}
+      WAHA_LOG_LEVEL: warn
+      WAHA_LOG_FORMAT: JSON
+      WAHA_HTTP_LOG_LEVEL: debug
+      WHATSAPP_HOOK_URL: http://assistant:8000/webhooks/waha
+      WHATSAPP_HOOK_EVENTS: message.any
+      WHATSAPP_HOOK_HMAC_KEY: ${APP_WEBHOOK_SECRET:?Start.cmd creates this}
+      WHATSAPP_HOOK_RETRIES_ATTEMPTS: "10"
+      WHATSAPP_HOOK_RETRIES_DELAY_SECONDS: "3"
+      WHATSAPP_HOOK_RETRIES_POLICY: exponential
+      WAHA_PRINT_QR: "False"
+    volumes:
+      - whatsapp-session:/app/.sessions
+    shm_size: 1gb
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "2"
+  assistant:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_ADMIN_TOKEN: ${APP_ADMIN_TOKEN:?Start.cmd creates this}
+      APP_WEBHOOK_SECRET: ${APP_WEBHOOK_SECRET:?Start.cmd creates this}
+      WAHA_API_KEY: ${WAHA_API_KEY:?Start.cmd creates this}
+      WAHA_URL: http://waha:3000
+    ports:
+      - "127.0.0.1:${APP_PORT:-8765}:8000"
+    volumes:
+      - assistant-data:/data
+    depends_on:
+      - waha
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "2"
+volumes:
+  whatsapp-session:
+  assistant-data:

@@ -1,0 +1,8 @@
+# WAHA keeps its Apache-2.0 license. The narrow extension is MIT; see its NOTICE.
+FROM devlikeapro/waha:latest-2026.9.2@sha256:280bdc8f860267a2488a45d00ec88529646f7468c0bf0283c595d6efdd1b5e3b
+
+# Keep the base image's user, working directory, entrypoint and command.
+COPY waha/metadata-patch.cjs waha/metadata-patch.test.cjs /opt/groupbrief-waha/
+RUN node /opt/groupbrief-waha/metadata-patch.cjs /app \
+    && node --check /app/dist/core/engines/webjs/session.webjs.core.js \
+    && WAHA_PATCH_TEST_ROOT=/app node --test /opt/groupbrief-waha/metadata-patch.test.cjs

@@ -1,0 +1,17 @@
+# Runtime dependency set verified on 2026-10-20. Refresh together and rerun tests.
+annotated-types==0.8.0
+anyio==4.15.1
+certifi==2026.10.19
+click==8.5.0
+fastapi==0.119.0
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.20
+pydantic==2.14.1
+pydantic_core==2.50.1
+starlette==0.48.0
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+tzdata==2025.2
+uvicorn==0.37.0

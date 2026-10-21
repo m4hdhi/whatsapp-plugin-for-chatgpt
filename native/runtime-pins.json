@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "node_sha256": "2ffe3acc0458fdde999f50d11809bbe7c9b7ef204dcf17094e325d26ace101d8",
+  "chromium_sha256": "b798f9e53a98d29eb7f36f8c409f905d3184780a04d2bcb56989067194784bd1",
+  "whatsapp_web_js": "1.34.7",
+  "puppeteer": "24.38.0",
+  "chromium": "149.0.7827.55",
+  "node": "24.12.0"
+}
