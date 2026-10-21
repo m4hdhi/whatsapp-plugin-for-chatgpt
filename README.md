@@ -6,6 +6,8 @@ An independent Windows integration that lets ChatGPT read permitted WhatsApp tex
 
 **Public directory status: not submitted or approved.** The current linked-device bridge is unofficial and conflicts with OpenAI's public-directory rule on unofficial connectors. Local MCP submissions also need approved-partner eligibility. Hosting this same bridge does not remove those requirements. See [submission readiness](submission/READINESS.md).
 
+The source and downloads are public. When installation documentation calls this a personal/private plugin, it means users install it into their own ChatGPT environment outside the public OpenAI directory; it does not mean this GitHub repository is private.
+
 ## Download and connect
 
 Get the Windows ZIP and SHA-256 file from [Releases](https://github.com/m4hdhi/whatsapp-plugin-for-chatgpt/releases). No Docker, Python or Node installation is required for the packaged Windows edition.

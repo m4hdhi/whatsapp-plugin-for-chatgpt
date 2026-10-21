@@ -13,7 +13,7 @@ Possible directions requiring a publisher decision: keep this private local prod
 ## Materials prepared
 
 - Working source, five MCP tools, explicit tool annotations and consent controls.
-- Windows 2.2.0 private distribution package and checksum.
+- Windows 2.2.0 package and checksum for direct public distribution and personal local installation.
 - Current setup/build instructions and technical data-practices inventory.
 - Five positive and three negative draft review cases in `review-cases.json`.
 - `plugin.draft.json` is a metadata preparation copy, not a complete upload bundle. The private source manifest is preserved.
