@@ -1,4 +1,4 @@
-# WhatsApp for ChatGPT Windows — 2.2.0
+# WhatsApp for ChatGPT Windows — 2.2.1
 
 Made by [Mahdhi](https://www.linkedin.com/in/m4hdhi/).
 
@@ -7,6 +7,10 @@ Made by [Mahdhi](https://www.linkedin.com/in/m4hdhi/).
 The portable plugin edition needs no separate GroupBrief installer, Docker, Python or Node installation. Its download includes the Windows WhatsApp helper, browser and runtimes. This is a local plugin with a background helper, not a hosted service or an official WhatsApp integration.
 
 ## Add the plugin
+
+Use the entire **2.2.1 ZIP**, including `bin` and `helper`. Do not copy only the plugin manifest or executable. Version 2.2.1 distinguishes helper authentication failures from denied sharing and checks portable runtime completeness before registration. Your message-sharing checkbox and saved-brief checkbox are separate; enable and save the first for new-message reads. A fresh installation keeps both off until you choose.
+
+If upgrading from the old GroupBrief installer, its desktop/sign-in shortcuts still point to that old installation. Quit that helper first and start this version with `Connect-WhatsApp.cmd`. Avoid starting both editions. Your WhatsApp pairing and data remain in the existing local profile.
 
 1. If upgrading, quit the old GroupBrief helper from its Windows tray and close ChatGPT first. Extract the whole ZIP. Do not run it inside Windows' ZIP preview. Keep your existing profile to preserve pairing and messages.
 2. Double-click `Add-to-ChatGPT.cmd`. It copies the plugin and its helper into your personal plugin folder and makes it available. It preserves other plugins and does not enable itself or change WhatsApp permission.

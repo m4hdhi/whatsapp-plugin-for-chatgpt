@@ -122,7 +122,7 @@ def create_app(engine: Engine | None = None, *, admin_token: str | None = None,
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "application": "GroupBrief", "version": "2.2.0"}
+        return {"status": "ok", "application": "GroupBrief", "version": "2.2.1"}
 
     @app.get("/")
     def index():

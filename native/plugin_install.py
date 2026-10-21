@@ -13,6 +13,14 @@ def register_plugin(source: Path, home: Path | None = None):
         raise ValueError("The personal plugin folders must stay within your Windows profile.")
     if not (source / "bin" / "GroupBriefLink.exe").is_file():
         raise RuntimeError("Reinstall the complete GroupBrief Windows package before registering its ChatGPT plugin.")
+    # The portable edition includes its own helper; reject partial extraction
+    # before touching the installed plugin or personal marketplace.
+    helper = source / 'helper'
+    if helper.exists() and any(not (helper / name).is_file() for name in (
+            'GroupBrief.exe', 'runtime/node.exe', 'runtime/chromium/chrome.exe',
+            'bridge/bridge.cjs', 'bridge/node_modules/whatsapp-web.js/package.json',
+            '_internal/static/app.js')):
+        raise RuntimeError('Extract the complete WhatsApp ZIP, including every helper folder, before adding the plugin.')
     if target.exists() and not (target / ".groupbrief-owned").is_file():
         raise RuntimeError("A different plugin already uses this name. Your existing plugin was left unchanged.")
     if marketplace.exists():

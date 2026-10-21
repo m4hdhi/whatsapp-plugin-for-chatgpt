@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "groupbrief",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Analyze permitted WhatsApp messages in ChatGPT without an API key. Made by Mahdhi.",
   "author": { "name": "Mahdhi", "url": "https://www.linkedin.com/in/m4hdhi/" },
   "homepage": "https://www.linkedin.com/in/m4hdhi/",

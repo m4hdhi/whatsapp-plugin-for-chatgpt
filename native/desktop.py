@@ -209,7 +209,7 @@ def main():
     port = sock.getsockname()[1]
     config["port"] = port
     (directory / "local-config.json").write_text(json.dumps(config), encoding="utf-8")
-    (directory / "runtime.json").write_text(json.dumps({"url": f"http://127.0.0.1:{port}", "read_token": config["read_token"], "version": "2.0.0"}), encoding="utf-8")
+    (directory / "runtime.json").write_text(json.dumps({"url": f"http://127.0.0.1:{port}", "read_token": config["read_token"], "version": "2.2.1"}), encoding="utf-8")
     bridge = BridgeProcess(directory, config, port)
     bridge.start()
     threading.Thread(target=bridge.monitor, daemon=True).start()

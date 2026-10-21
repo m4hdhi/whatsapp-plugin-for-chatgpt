@@ -42,7 +42,7 @@ for file in files:
     assert file.suffix not in {'.sqlite3', '.log', '.pyc'}
 outputs = workspace / 'outputs'
 outputs.mkdir(parents=True, exist_ok=True)
-archive_path = outputs / 'WhatsApp-ChatGPT-Plugin-2.2.0.zip'
+archive_path = outputs / f"WhatsApp-ChatGPT-Plugin-{manifest['version']}.zip"
 with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
     for file in files:
         archive.write(file, 'GroupBrief/' + file.relative_to(target).as_posix())

@@ -122,6 +122,26 @@ def test_mcp_protocol_reads_briefs_and_exposes_only_explicit_local_setup():
     assert invalid["error"]["code"] == -32602
 
 
+@pytest.mark.parametrize('missing', ['GroupBrief.exe', 'runtime/node.exe',
+                                    'runtime/chromium/chrome.exe', 'bridge/bridge.cjs',
+                                    'bridge/node_modules/whatsapp-web.js/package.json',
+                                    '_internal/static/app.js'])
+def test_incomplete_portable_helper_does_not_register_or_overwrite_plugin(tmp_path, missing):
+    source, home = tmp_path / 'source', tmp_path / 'home'
+    files = ['bin/GroupBriefLink.exe', 'helper/GroupBrief.exe', 'helper/runtime/node.exe',
+             'helper/runtime/chromium/chrome.exe', 'helper/bridge/bridge.cjs',
+             'helper/bridge/node_modules/whatsapp-web.js/package.json', 'helper/_internal/static/app.js']
+    for name in files:
+        file = source / name
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text('synthetic fixture')
+    (source / 'helper' / missing).unlink()
+    with pytest.raises(RuntimeError, match='complete'):
+        register_plugin(source, home)
+    assert not (home / '.codex/plugins/groupbrief').exists()
+    assert not (home / '.agents/plugins/marketplace.json').exists()
+
+
 @pytest.mark.parametrize('status', [401, 403])
 def test_mcp_distinguishes_helper_authentication_from_message_permission(status):
     from urllib.error import HTTPError

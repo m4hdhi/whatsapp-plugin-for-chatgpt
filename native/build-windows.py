@@ -17,11 +17,18 @@ build = work / "native-build"
 outputs = workspace / "outputs"
 compiler = Path(r"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe")
 parser = argparse.ArgumentParser()
+parser.add_argument("--workspace", type=Path, help="Separate output directory for this build")
 parser.add_argument("--skip-python", action="store_true")
 parser.add_argument("--stage-only", action="store_true")
 parser.add_argument("--node", type=Path, default=Path(r"C:\Program Files\nodejs\node.exe"))
 parser.add_argument("--chromium", type=Path, default=Path.home() / "AppData/Local/ms-playwright/chromium-1228/chrome-win64")
 args = parser.parse_args()
+if args.workspace:
+    workspace = args.workspace.resolve()
+    work = workspace / "work"
+    stage = work / "native-stage" / "GroupBrief"
+    build = work / "native-build"
+    outputs = workspace / "outputs"
 
 def run(command):
     subprocess.run([str(value) for value in command], cwd=source, check=True)
