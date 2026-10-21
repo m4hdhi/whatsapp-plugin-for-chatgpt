@@ -3,11 +3,13 @@
 // The local dashboard token is passed only in the URL fragment on first launch.
 // It never goes into query strings, rendered markup, or localStorage.
 const TOKEN_KEY = 'groupbrief.session';
+const HOSTED = document.body.dataset.hosted === 'true';
+const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const app = document.getElementById('app');
 const toastNode = document.getElementById('toast');
-let token = sessionStorage.getItem(TOKEN_KEY) || '';
+let token = HOSTED ? 'cookie-session' : sessionStorage.getItem(TOKEN_KEY) || '';
 const fragment = new URLSearchParams(window.location.hash.slice(1));
-if (fragment.has('token')) {
+if (!HOSTED && fragment.has('token')) {
   token = fragment.get('token') || '';
   sessionStorage.setItem(TOKEN_KEY, token);
   window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -94,10 +96,14 @@ function readableError(error) {
 }
 
 async function api(path, options = {}) {
-  const headers = { Authorization: `Bearer ${token}`, ...options.headers };
+  const headers = { ...(HOSTED ? { 'X-CSRF-Token': CSRF } : { Authorization: `Bearer ${token}` }), ...options.headers };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
   const response = await fetch(path, { ...options, headers, cache: 'no-store' });
   if (response.status === 401 || response.status === 403) {
+    if (HOSTED) {
+      if (response.status === 401) window.location.assign('/login');
+      throw new Error('Your session expired or permission was denied. Refresh this page and sign in again.');
+    }
     token = '';
     sessionStorage.removeItem(TOKEN_KEY);
     showLogin('The dashboard token was not accepted. Use the access link from your launcher.');
@@ -197,8 +203,13 @@ function dateText(value, includeTime = true) {
 function brand() {
   const node = el('a', 'brand');
   node.href = '#';
-  node.setAttribute('aria-label', 'GroupBrief overview');
-  node.append(el('span', 'brand-mark'), document.createTextNode('GroupBrief'));
+  node.setAttribute('aria-label', HOSTED ? 'WhatsApp overview' : 'GroupBrief overview');
+  if (HOSTED) {
+    const logo = el('img');
+    logo.src = '/cloud-static/whatsapp.png';
+    logo.width = 32; logo.height = 32; logo.alt = '';
+    node.append(logo, document.createTextNode('WhatsApp'));
+  } else node.append(el('span', 'brand-mark'), document.createTextNode('GroupBrief'));
   node.firstChild.setAttribute('aria-hidden', 'true');
   node.addEventListener('click', event => { event.preventDefault(); if (state) switchView('overview'); });
   return node;
@@ -240,6 +251,11 @@ function renderShell() {
   const status = el('div', 'connection-status');
   status.id = 'connection-status';
   headerInner.append(status);
+  if (HOSTED) {
+    const account = el('a', 'text-button', 'Account');
+    account.href = '/account';
+    headerInner.append(account);
+  }
   header.append(headerInner);
   const main = el('main', 'page');
   main.id = 'main';
@@ -254,7 +270,7 @@ function renderShell() {
   main.append(alerts, content);
   const footer = el('footer', 'footer');
   const footerInner = el('div', 'footer-inner');
-  footerInner.append(document.createTextNode('Private by default. Chat reading and AI processing require your permission.'), el('span', '', 'GroupBrief · Local assistant'));
+  footerInner.append(document.createTextNode('Private by default. Chat reading and AI processing require your permission.'), HOSTED ? externalLink('Made by Mahdhi', 'https://www.linkedin.com/in/m4hdhi/') : el('span', '', 'GroupBrief · Local assistant'));
   footer.append(footerInner);
   app.append(header, main, footer);
   updateHeader();
@@ -526,18 +542,18 @@ function connectionPanel() {
         updateAlerts();
         applyConnectionResponse(result);
         await refreshQr();
-        if (qrImage && !isConnected()) showToast('Open Linked Devices on your iPhone to scan the QR code.');
+        if (qrImage && !isConnected()) showToast('Open Linked devices in WhatsApp on your phone to scan the QR code.');
       } finally { connectInProgress = false; }
     }), 'secondary');
     connect.id = 'connect-whatsapp';
     connect.disabled = busyActions.has('connect') || connectInProgress;
     panel.append(connect);
     const steps = el('ol', 'steps');
-    ['Open WhatsApp on your iPhone', 'Settings → Linked Devices', 'Link a Device, then scan the QR'].forEach(text => steps.append(el('li', '', text)));
+    ['Open WhatsApp on your phone', 'iPhone: Settings → Linked Devices. Android: menu → Linked devices', 'Link a Device, then scan the QR'].forEach(text => steps.append(el('li', '', text)));
     panel.append(steps);
     if (state.connection?.error) panel.append(el('p', 'connection-error-text', state.connection.error));
   }
-  panel.append(el('p', 'connection-note', 'Your PC needs to stay on. This uses an unofficial linked-device bridge.'));
+  panel.append(el('p', 'connection-note', HOSTED ? 'Monitoring requires the hosted service to stay running. Pair using WhatsApp → Linked devices on your phone. To scan the QR, display this page on another screen. This is an unofficial linked-device bridge.' : 'Your PC needs to stay on. This uses an unofficial linked-device bridge.'));
   return panel;
 }
 
@@ -708,7 +724,7 @@ function renderChats(content) {
     chatsDirty = true;
     syncChatControls();
   });
-  consentLabel.append(consent, el('span', '', 'I allow GroupBrief to capture these chats locally and use them with the ChatGPT sharing or API analysis options I enable in Settings.'));
+  consentLabel.append(consent, el('span', '', HOSTED ? 'I allow this hosted service to store these chats on its server and use them with the ChatGPT sharing or API analysis options I enable in Settings.' : 'I allow GroupBrief to capture these chats locally and use them with the ChatGPT sharing or API analysis options I enable in Settings.'));
   const consentDetail = el('p', 'hint', 'Your choice takes effect only after saving. Pausing stops new reading and AI processing and deletes stored message text and summaries. Existing task titles are kept.');
   consentDetail.id = 'consent-detail';
   const reason = el('p', 'hint consent-reason');
@@ -934,7 +950,7 @@ function renderSettings(content) {
     makeField('aliases', 'Names people use for you', 'text', (settings.aliases || []).join(', '), { wide: true, maxLength: 600, hint: 'Separate names, nicknames, or your phone number with commas.' }),
   );
   identity.append(identityGrid);
-  const schedule = fieldset('Your routine', 'The assistant runs on this PC. Digests and reminder times use the timezone above.');
+  const schedule = fieldset('Your routine', HOSTED ? 'The assistant runs on the server. Digests and reminder times use the timezone above.' : 'The assistant runs on this PC. Digests and reminder times use the timezone above.');
   const scheduleGrid = el('div', 'form-grid');
   scheduleGrid.append(
     makeField('analysis_interval_minutes', 'Check every (minutes)', 'number', settings.analysis_interval_minutes ?? 30, { required: true, min: 5, max: 1440, step: 1 }),
@@ -946,7 +962,7 @@ function renderSettings(content) {
   );
   schedule.append(scheduleGrid);
   const intelligence = fieldset('Optional automatic analysis', 'Default: ask ChatGPT to analyze permitted messages using your ChatGPT plan. To create dashboard briefs and tasks automatically while you are away, enable API analysis below. This sends permitted text to the OpenAI API, billed separately from ChatGPT.');
-  intelligence.append(booleanField('background_analysis_enabled', 'Enable automatic analysis using an API key', Boolean(settings.background_analysis_enabled), 'Off by default, even if a key was saved previously. Keep the PC awake for background analysis and reminders.'));
+  intelligence.append(booleanField('background_analysis_enabled', 'Enable automatic analysis using an API key', Boolean(settings.background_analysis_enabled), HOSTED ? 'Off by default. Optional background analysis runs on the server and uses your API billing.' : 'Off by default, even if a key was saved previously. Keep the PC awake for background analysis and reminders.'));
   intelligence.append(el('p', 'config-status', state.configured?.openai ? 'API key saved · Used for analysis only when you enable the option above or explicitly request API analysis.' : 'No API key needed for ChatGPT mode. You can leave this section blank.'));
   const intelligenceGrid = el('div', 'form-grid');
   intelligenceGrid.append(
@@ -966,14 +982,14 @@ function renderSettings(content) {
   }), 'secondary'));
   const chatgpt = fieldset('ChatGPT · No API key required', 'ChatGPT can read permitted text messages and captions when you ask, then analyze them within your conversation using your ChatGPT plan. Your plan limits and plugin availability apply. This does not automatically create local reminders.');
   chatgpt.append(booleanField('chatgpt_messages_enabled', 'Allow ChatGPT to read permitted messages on request', Boolean(settings.chatgpt_messages_enabled),
-    'Shares locally captured message text, sender names and timestamps with ChatGPT. Only chats covered by your Chats permission are included. Exclusions and retention still apply. Turn off to stop future reads; content already shared remains in that ChatGPT conversation.', !state.configured?.chatgpt_plugin));
+    `${HOSTED ? 'Shares message text captured on the server' : 'Shares locally captured message text'}, sender names and timestamps with ChatGPT. Only chats covered by your Chats permission are included. Exclusions and retention still apply. Turn off to stop future reads; content already shared remains in that ChatGPT conversation.`, !state.configured?.chatgpt_plugin));
   chatgpt.append(booleanField('chatgpt_enabled', 'Allow ChatGPT to read my permitted briefings and tasks', Boolean(settings.chatgpt_enabled),
     'This is separate from chat-processing permission. ChatGPT reads the brief when you use the plugin; it does not automatically post into an existing ChatGPT conversation.', !state.configured?.chatgpt_plugin));
-  const chatgptStatus = el('p', 'hint', state.configured?.chatgpt_plugin
+  const chatgptStatus = el('p', 'hint', HOSTED ? 'Save your sharing permissions, then connect this hosted account from a supported ChatGPT client. Account contains the remote connection URL. No local installation is needed.' : state.configured?.chatgpt_plugin
     ? 'Save permission, then make the plugin available. Restart ChatGPT Windows, open Plugins → Personal, and install WhatsApp by Mahdhi. Use it in a local Work chat.'
     : 'Install the Windows desktop package to use its bundled local ChatGPT plugin.');
   chatgptStatus.setAttribute('role', 'status');
-  chatgpt.append(button('Make available in ChatGPT', node => action('register-chatgpt', node, 'Preparing…', async () => {
+  if (!HOSTED) chatgpt.append(button('Make available in ChatGPT', node => action('register-chatgpt', node, 'Preparing…', async () => {
     if (settingsDirty) throw new Error('Save your settings before connecting ChatGPT.');
     if (!state.settings.chatgpt_enabled && !state.settings.chatgpt_messages_enabled) throw new Error('Check and save ChatGPT sharing permission first.');
     const result = await api('/api/chatgpt/register', { method: 'POST' });
@@ -981,7 +997,8 @@ function renderSettings(content) {
     chatgptStatus.textContent = result.message;
     showToast('Plugin is available. Complete installation in the ChatGPT Windows app.');
   }), 'secondary'), chatgptStatus);
-  const reminders = fieldset('Optional iPhone notifications', 'Pushover can also deliver reminders to your iPhone. Install its app and save the user key and application token below. Windows reminders work independently.');
+  if (HOSTED) chatgpt.append(chatgptStatus);
+  const reminders = fieldset('Optional phone notifications', HOSTED ? 'Pushover can deliver saved-task reminders to supported phones. Its service and app requirements apply. Reading messages in ChatGPT does not create saved tasks or reminders here.' : 'Pushover can also deliver reminders to your phone. Install its app and save the user key and application token below. Windows reminders work independently.');
   reminders.append(el('p', `config-status${state.configured?.pushover ? '' : ' missing'}`, state.configured?.pushover ? 'Pushover configured · Leave both fields blank to keep current credentials.' : 'Pushover is not configured. Reminders will still appear in this dashboard.'));
   const remindersGrid = el('div', 'form-grid');
   remindersGrid.append(
@@ -1002,7 +1019,9 @@ function renderSettings(content) {
   const status = el('span', 'hint', 'Changes take effect after you save.');
   status.id = 'settings-status';
   actions.append(save, status);
-  form.append(identity, chatgpt, intelligence, schedule, windows, reminders, actions);
+  form.append(identity, chatgpt, intelligence, schedule);
+  if (!HOSTED) form.append(windows);
+  form.append(reminders, actions);
   form.addEventListener('submit', event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
@@ -1042,7 +1061,7 @@ function renderSettings(content) {
   });
   form.elements.namedItem('timezone').addEventListener('input', event => event.target.setCustomValidity(''));
   const aside = el('aside', 'settings-aside');
-  aside.append(el('h3', '', 'A quieter inbox.'), el('p', '', 'GroupBrief processes the chats covered by your saved permission and keeps tasks linked to their original messages. Review uncertain tasks before relying on a deadline.'), el('p', '', 'Keep this PC on with the assistant running. Your iPhone does not need to stay on the same Wi-Fi after linking.'));
+  aside.append(el('h3', '', 'A quieter inbox.'), el('p', '', 'GroupBrief processes the chats covered by your saved permission and keeps tasks linked to their original messages. Review uncertain tasks before relying on a deadline.'), el('p', '', HOSTED ? 'Your permitted chats and linked-device session are stored on the server. The service operator administers that server. You can stop sharing at any time and revoke ChatGPT access from Account.' : 'Keep this PC on with the assistant running. Your iPhone does not need to stay on the same Wi-Fi after linking.'));
   const privacy = el('p', '');
   privacy.append(document.createTextNode('Only include chats you are permitted to process. Set selected chats or explicitly opt into all chats under Chats. This is an unofficial WhatsApp linked-device connection.'));
   aside.append(privacy, el('h3', 'spaced', 'Take your brief with you.'), el('p', '', 'Download your current summaries and tasks as a Markdown file.'), button('Export current brief', node => action('export', node, 'Preparing…', exportBrief), 'secondary'));
@@ -1105,6 +1124,7 @@ async function refreshState(forceRender = false) {
 }
 
 function showLogin(message = '') {
+  if (HOSTED) { window.location.assign('/login'); return; }
   app.replaceChildren();
   const shell = el('main', 'login-shell');
   shell.id = 'main';
@@ -1135,7 +1155,7 @@ function renderLoadError() {
   app.replaceChildren();
   const shell = el('main', 'login-shell');
   shell.id = 'main';
-  shell.append(brand(), el('h1', '', 'Let’s reconnect.'), el('p', '', 'GroupBrief could not reach the local assistant. Check that the Windows launcher is still running.'), alertBox(errorMessage), button('Try again', node => action('retry', node, 'Connecting…', () => refreshState(true)), 'secondary'));
+  shell.append(brand(), el('h1', '', 'Let’s reconnect.'), el('p', '', HOSTED ? 'The hosted service is unavailable. Check your connection and try again.' : 'GroupBrief could not reach the local assistant. Check that the Windows launcher is still running.'), alertBox(errorMessage), button('Try again', node => action('retry', node, 'Connecting…', () => refreshState(true)), 'secondary'));
   app.append(shell);
 }
 

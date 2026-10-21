@@ -8,12 +8,13 @@ Assessment date: 2026-10-21. **Status: blocked; not ready to submit.** No OpenAI
 2. The packaged MCP server runs locally over stdio. [Desktop-only submission](https://developers.openai.com/plugins/deploy/desktop-only) requires approved-partner access and organization allowlisting. Eligibility is unverified.
 3. The existing display name and logo are WhatsApp branding. Publisher rights or an independent public identity must be resolved. A suggested independent name is GroupBrief, subject to the publisher's choice.
 
-Possible directions requiring a publisher decision: keep this private local product; build a separate chat-export analysis product; or establish an authorized official integration whose documented capabilities cover the intended workflows. An export product would not automatically read live chats and is not implemented here. No alternate product has been substituted.
+The publisher has chosen to preserve live-chat features and add hosted access across devices. The hosted pilot is implemented in `cloud/`, with remote OAuth MCP and isolated accounts, but it still uses the unofficial bridge. No chat-export product has been substituted. Authorized integration access is still required for public-directory eligibility.
 
 ## Materials prepared
 
 - Working source, five MCP tools, explicit tool annotations and consent controls.
 - Windows 2.2.0 package and checksum for direct public distribution and personal local installation.
+- Hosted 3.0.0-beta.1 source, deployment generator, per-account sign-in/consent and remote read-only MCP. Not deployed or verified in native ChatGPT clients.
 - Current setup/build instructions and technical data-practices inventory.
 - Five positive and three negative draft review cases in `review-cases.json`.
 - `plugin.draft.json` is a metadata preparation copy, not a complete upload bundle. The private source manifest is preserved.
@@ -21,7 +22,7 @@ Possible directions requiring a publisher decision: keep this private local prod
 
 ## Confirmed publisher details
 
-Publisher: Mahdhi Muzammil. Intended countries: all available countries, represented by an empty restriction list. The plugin is free with no plugin commerce. Provider: register.lk; hosting plan/type and access are unverified. The publisher requires the existing live-chat features to remain.
+Publisher: Mahdhi Muzammil. Intended countries: all available countries, represented by an empty restriction list. The plugin is free with no plugin commerce. Provider: register.lk, shared hosting/cPanel. The publisher requires the existing live-chat features and access across devices. The subdomain has been created; a production backend has not been deployed.
 
 ## Remaining decisions and evidence
 
@@ -35,7 +36,7 @@ Publisher: Mahdhi Muzammil. Intended countries: all available countries, represe
 
 ## Hosting
 
-The proposed hostname is `wa.robotuae.com`. No server has been deployed there and no DNS change is included. The current dashboard is loopback-only administration; do not expose it as a remote MCP endpoint. A hosted integration would require an authenticated HTTPS MCP implementation, per-user session/storage isolation, explicit consent, token lifecycle and deletion controls. The provider is register.lk. The specific hosting plan, access and authorized integration model are still needed before selecting a deployment design.
+The selected hostname is `wa.robotuae.com`; the publisher created the subdomain in cPanel and requires using only that existing hosting. The hosted gateway has OAuth, per-user storage, consent and token revocation. The desktop dashboard remains loopback-only. A direct cPanel Passenger launcher uses private Unix sockets and sandboxed Chrome; a container deployment is also retained. Node 24, Python 3.12 and a sandboxed Chrome launch were verified on the actual shared host. Full application deployment, HTTPS and idle/restart persistence remain unverified. No production service or DNS change has been made. Account erasure is operator-managed; there is no public self-signup. See `docs/CPANEL.md`, `docs/HOSTED.md` and `cloud/VERIFICATION.md`.
 
 ## Demo walkthrough to record after eligibility and development setup are resolved
 

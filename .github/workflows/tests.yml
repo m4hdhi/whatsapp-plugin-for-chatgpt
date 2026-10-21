@@ -4,7 +4,10 @@ permissions:
   contents: read
 jobs:
   python:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,5 +22,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test native/bridge/bridge.test.cjs waha/metadata-patch.test.cjs
+      - run: node --test native/bridge/bridge.test.cjs waha/metadata-patch.test.cjs cloud/passenger.test.cjs
       - run: node --check static/app.js
+      - run: node --check cloud/bridge.cjs
+      - run: node --check cloud/passenger.cjs
+      - run: node --check cloud/static/account.js

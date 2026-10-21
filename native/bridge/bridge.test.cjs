@@ -6,6 +6,22 @@ const vm = require('node:vm');
 const crypto = require('node:crypto');
 const { LocalBridge, metadataProjection, messageProjection, historyProjection, resumeSyncedSession, recoverColdStartup } = require('./bridge.cjs');
 
+test('hosted bridge accepts only its explicit private host and still authenticates requests', async () => {
+  const bridge = new LocalBridge({apiKey: 'a'.repeat(64), allowedHost: 'bridge-sample:3000'});
+  const port = await bridge.listen();
+  try {
+    const request = headers => new Promise((resolve,reject) => {
+      require('node:http').get({hostname:'127.0.0.1',port,path:'/api/sessions/default',headers}, res => {
+        res.resume();res.on('end',()=>resolve(res.statusCode));
+      }).on('error',reject);
+    });
+    assert.equal(await request({Host:'bridge-sample:3000','X-Api-Key':'a'.repeat(64)}), 200);
+    assert.equal(await request({Host:'bridge-sample:3000'}), 401);
+    assert.equal(await request({Host:'bridge-other:3000','X-Api-Key':'a'.repeat(64)}), 403);
+    assert.equal(await request({Host:'bridge-sample:3000','X-Api-Key':'a'.repeat(64),Origin:'https://evil.test'}), 403);
+  } finally { await bridge.close(); }
+});
+
 test('cold startup retries only a stalled initial document and never reloads pairing', async () => {
   let state = 'UNLAUNCHED', reloads = 0;
   const page = { waitForFunction: async () => { throw new Error('Timed out'); },

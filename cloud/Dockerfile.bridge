@@ -1,0 +1,11 @@
+FROM node:24.12.0-bookworm-slim
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+RUN apt-get update && apt-get install -y --no-install-recommends chromium ca-certificates fonts-liberation && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY native/bridge/package.json native/bridge/package-lock.json ./native/bridge/
+RUN cd native/bridge && npm ci --omit=dev --ignore-scripts && mkdir /session && chown node:node /session
+COPY native/bridge/bridge.cjs ./native/bridge/
+COPY cloud/bridge.cjs ./cloud/
+USER node
+EXPOSE 3000
+CMD ["node", "cloud/bridge.cjs"]

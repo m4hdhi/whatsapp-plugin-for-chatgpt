@@ -2,13 +2,21 @@
 
 Made by [Mahdhi Muzammil](https://www.linkedin.com/in/m4hdhi/). Free, open-source distribution under the MIT license.
 
-An independent Windows integration that lets ChatGPT read permitted WhatsApp text messages and captions on request. ChatGPT analyzes the returned evidence in the conversation; no OpenAI API key is needed for that default workflow. This project is not affiliated with or endorsed by WhatsApp, Meta or OpenAI.
+An independent integration that lets ChatGPT read permitted WhatsApp text messages and captions on request. ChatGPT analyzes the returned evidence in the conversation; no OpenAI API key is needed for that default workflow. This project is not affiliated with or endorsed by WhatsApp, Meta or OpenAI.
+
+## Hosted edition — browsers across devices
+
+The **3.0.0-beta.1 hosted pilot** adds browser sign-in and setup, isolated accounts, and OAuth-protected remote MCP tools. Users do not install Docker or a local helper. A Linux server runs the connection; the browser interface targets Windows, macOS, Linux, iOS and Android. Actual ChatGPT availability still depends on its client, plan, region and workspace. Native ChatGPT mobile/desktop compatibility has not been verified.
+
+The source is implemented; **no public service has been deployed**. A direct cPanel launcher is included alongside the container deployment. Node 24, Python 3.12 and a sandboxed Chrome launch were verified on the selected existing hosting. Full application deployment, HTTPS and persistence between visits still need verification. See the [cPanel guide](docs/CPANEL.md); no additional hosting purchase is required to perform this pilot evaluation.
+
+Start with the [hosted deployment guide](docs/HOSTED.md). This is an operator-managed pilot: accounts are provisioned by the operator, with no public self-signup, email recovery, automatic scaling or service guarantee. Public-directory eligibility remains blocked by the unofficial integration rule below.
 
 **Public directory status: not submitted or approved.** The current linked-device bridge is unofficial and conflicts with OpenAI's public-directory rule on unofficial connectors. Local MCP submissions also need approved-partner eligibility. Hosting this same bridge does not remove those requirements. See [submission readiness](submission/READINESS.md).
 
 The source and downloads are public. When installation documentation calls this a personal/private plugin, it means users install it into their own ChatGPT environment outside the public OpenAI directory; it does not mean this GitHub repository is private.
 
-## Download and connect
+## Windows edition — download and connect
 
 Get the Windows ZIP and SHA-256 file from [Releases](https://github.com/m4hdhi/whatsapp-plugin-for-chatgpt/releases). No Docker, Python or Node installation is required for the packaged Windows edition.
 

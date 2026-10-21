@@ -218,7 +218,10 @@ class LocalBridge {
     const supplied = Buffer.from(String(req.headers['x-api-key'] || ''));
     const expected = Buffer.from(this.options.apiKey);
     if (supplied.length !== expected.length || !crypto.timingSafeEqual(supplied, expected)) return this.json(res, 401, { error: 'Unauthorized' });
-    if (req.headers.origin || !/^(127\.0\.0\.1|localhost)(:\d+)?$/.test(req.headers.host || '')) return this.json(res, 403, { error: 'Local service only' });
+    const hostAllowed = this.options.allowedHost
+      ? req.headers.host === this.options.allowedHost
+      : /^(127\.0\.0\.1|localhost)(:\d+)?$/.test(req.headers.host || '');
+    if (req.headers.origin || !hostAllowed) return this.json(res, 403, { error: 'Private service only' });
     let url;
     try { url = new URL(req.url, 'http://127.0.0.1'); } catch (_) { return this.json(res, 400, { error: 'Invalid request' }); }
     let bytes = 0;
@@ -265,8 +268,8 @@ class LocalBridge {
       return this.json(res, 404, { error: 'Unsupported operation' });
     } catch (_) { if (!res.headersSent) this.json(res, 503, { error: 'Local WhatsApp operation unavailable. Check the connection and try again.' }); }
   }
-  async listen(port = 0) {
-    await new Promise((resolve, reject) => { this.server.once('error', reject); this.server.listen(port, '127.0.0.1', resolve); });
+  async listen(port = 0, host = '127.0.0.1') {
+    await new Promise((resolve, reject) => { this.server.once('error', reject); this.server.listen(port, host, resolve); });
     return this.server.address().port;
   }
   async close() {
