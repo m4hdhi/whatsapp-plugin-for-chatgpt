@@ -17,6 +17,14 @@ Date: 2026-10-21. Version: 3.0.0-beta.1. All account/message inputs used in auto
 - The requested `wa.robotuae.com` A record was added in Cloudflare and confirmed against its authoritative nameserver as `162.214.204.205`. After DNS was fixed, cPanel accepted its standard AutoSSL check. An HTTPS request with normal certificate validation succeeded on 2026-10-21 at 09:55 UTC, returning HTTP 404 because the public application route was not installed yet.
 - The operator created an account directly in the private terminal prompt. A separate Node 24 production application was activated for the subdomain with source/configuration outside the document root. At 10:55 UTC the HTTPS health endpoint returned 200 and Chrome rendered the branded sign-in page. HTTP redirects to HTTPS. Unauthenticated `/api/state` and `/mcp` returned 401; the MCP challenge names its OAuth resource metadata. Public `/hooks/mahdhi` and `/config.json` returned 404, and `/.git/config` returned 403. Both OAuth metadata documents returned 200 with the correct HTTPS origin. A subsequent cPanel restart was requested and health returned 200 at 10:56 UTC; paired-session recovery was not tested.
 
+## Live shared-hosting blocker found after activation
+
+The operator successfully signed in to the public dashboard. Live pairing failed before QR generation. A temporary private initialization trace reported Chromium launch failure with a null exit code and empty stderr. The diagnostic was removed after investigation.
+
+An isolated client using the running worker's environment and the exact cloud client factory generated a QR when launched from cPanel Terminal. Comparing process limits showed that the actual LiteSpeed-launched worker has a 12 GiB soft/hard `RLIMIT_AS`; the terminal has no address-space limit. A standalone sandboxed Chrome `about:blank` probe with only that 12 GiB limit applied exited immediately with signal 5 (SIGTRAP). This establishes a reproducible launch-limit blocker; it does not establish a sufficient replacement limit. Provider assistance is required, and no browser security feature or host limit was bypassed.
+
+The app was observed restarting between visits, but the provider's lifecycle policy and reason for these restarts are unknown. ChatGPT OAuth discovery also failed during this investigation; an OAuth connection was not created. No account was paired, message capture/sharing remains off, and no real chats were read. The earlier terminal QR result must not be interpreted as successful public-dashboard pairing.
+
 ## Unresolved dependency audit
 
 `npm audit --omit=dev` on the pinned bridge dependency graph reported nine high-severity package entries, including inherited entries through Puppeteer/whatsapp-web.js. Root advisories include `basic-ftp` directory-listing denial of service and `extract-zip` symlink traversal/arbitrary writes. The nine entries are not nine independently reachable application exploits. Audit suggested an older whatsapp-web.js version; it was not applied blindly.
@@ -25,7 +33,7 @@ This build uses distribution Chromium with Puppeteer's download disabled, does n
 
 ## Not yet established
 
-- Authenticated browser login and actual pairing on the public deployment. The operator account exists; the user is completing the first browser sign-in.
+- Actual pairing on the public deployment is blocked by the inherited launch limit above. Authenticated browser login succeeded.
 - Persistent background operation between visits, paired-session recovery and production capacity on the shared account. Initial cPanel application startup and public health passed.
 - End-to-end OAuth/tool invocation inside ChatGPT, including actual Windows/macOS/iOS/Android clients and plan/workspace eligibility.
 - Real-account pairing, reconnect behavior after host restart, long-term collection completeness and load/concurrency testing.
