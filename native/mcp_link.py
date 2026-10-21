@@ -159,7 +159,9 @@ def dispatch(message, request=local_request):
                 result = {"data_notice": result["data_notice"], "timezone": result["timezone"], "tasks": result["tasks"]}
             return {**base, "result": {"content": [{"type": "text", "text": json.dumps(result, ensure_ascii=False)}], "isError": False}}
         except urllib.error.HTTPError as error:
-            if error.code in (401, 403):
+            if error.code == 401:
+                text = "The local helper rejected plugin authentication. An older helper may still be running, or the local connection credentials may be stale. Quit GroupBrief from its Windows tray, then run Connect-WhatsApp.cmd from the complete updated package. Sharing permissions could not be verified."
+            elif error.code == 403:
                 text = "ChatGPT sharing is disabled for this tool. Use open_whatsapp_setup and enable message sharing for message reads, or brief sharing for saved summaries/tasks."
             elif error.code == 404:
                 text = "An older WhatsApp helper is running. Quit GroupBrief from its Windows tray, then run Connect-WhatsApp.cmd from the updated 2.2.0 package. Your pairing and saved permissions are preserved."

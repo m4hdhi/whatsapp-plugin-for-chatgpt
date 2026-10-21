@@ -122,6 +122,26 @@ def test_mcp_protocol_reads_briefs_and_exposes_only_explicit_local_setup():
     assert invalid["error"]["code"] == -32602
 
 
+@pytest.mark.parametrize('status', [401, 403])
+def test_mcp_distinguishes_helper_authentication_from_message_permission(status):
+    from urllib.error import HTTPError
+
+    def rejected(_):
+        raise HTTPError('http://127.0.0.1:8767/api/chatgpt/messages', status,
+                        'synthetic rejection', {}, None)
+
+    response = dispatch({'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                         'params': {'name': 'read_whatsapp_messages', 'arguments': {'hours': 1}}}, rejected)
+    assert response['result']['isError'] is True
+    text = response['result']['content'][0]['text']
+    if status == 401:
+        assert 'authentication' in text.lower()
+        assert 'older' in text.lower()
+        assert 'sharing is disabled' not in text.lower()
+    else:
+        assert 'sharing is disabled' in text.lower()
+
+
 def test_plugin_starts_bundled_helper_without_shell_and_reuses_existing_instance(tmp_path, monkeypatch):
     from native import mcp_link
     launched = []
