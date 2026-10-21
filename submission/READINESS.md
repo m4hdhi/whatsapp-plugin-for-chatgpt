@@ -28,7 +28,7 @@ Publisher: Mahdhi Muzammil. Intended countries: all available countries, represe
 - Product direction and authorized access model; local submission eligibility if retaining stdio.
 - Confirm the selected OpenAI organization identity is verified as Mahdhi Muzammil; the intended name has been supplied, but dashboard verification has not been inspected.
 - Independent public branding or permission for the third-party branding.
-- Four live, verified pages: product website, support, privacy policy and terms. The repository/Issues provide source and issue reporting; draft policy material is not an adopted published privacy policy.
+- Website and support URLs are verified public GitHub pages and saved in the draft metadata. Published publisher-approved privacy-policy and terms URLs remain missing; technical policy notes are not substitutes.
 - A real demo recording in the intended ChatGPT host, hosted where reviewers can view it. The walkthrough is prepared below, but no video is claimed complete.
 - Dedicated reviewer access with sample data; submit any credentials through secure portal fields only.
 - Organization/domain verification, imported metadata, scans and authorized developer attestations.
